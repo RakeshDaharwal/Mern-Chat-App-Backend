@@ -91,4 +91,18 @@ const userDetails = async (req, res) => {
 
 
 
-module.exports = { registerUser, loginUser, userDetails };
+const allUsers = async (req, res) => {
+  try {
+    const currentUserId = req.user.userId;
+
+    // Find all users except the current user and exclude password field
+    const users = await User.find({ _id: { $ne: currentUserId } }).select('-password');
+
+    return res.status(200).json(users);
+  } catch (err) {
+    return res.status(500).json({ message: 'Server Error', error: err.message });
+  }
+};
+
+
+module.exports = { registerUser, loginUser, userDetails, allUsers };
