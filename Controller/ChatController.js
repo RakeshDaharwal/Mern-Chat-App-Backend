@@ -1,4 +1,4 @@
-const Chat = require('../Model/chatSchema');
+const Chat = require('../model/chatSchema');
 
 const getMessages = async (req, res) => {
   const { userId, contactId } = req.params;
