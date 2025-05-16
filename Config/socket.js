@@ -2,16 +2,16 @@ const Message = require('../Model/chatSchema');
 
 const chatSocket = (io) => {
   io.on('connection', (socket) => {
-    console.log('New client connected:', socket.id);
+    // console.log('New client connected:', socket.id);
 
     socket.on('joinRoom', (roomId) => {
       socket.join(roomId);
-      console.log(`User joined room: ${roomId}`);
+      // console.log(`User joined room: ${roomId}`);
     });
 
     socket.on('sendMessage', async ({ sender, receiver, text }) => {
 
-    console.log('Received:', { sender, receiver, text });
+    // console.log('Received:', { sender, receiver, text });
 
       // Save message in DB
       const message = new Message({ sender, receiver, text });

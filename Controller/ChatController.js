@@ -3,8 +3,6 @@ const Chat = require('../Model/chatSchema');
 const getMessages = async (req, res) => {
   const { userId, contactId } = req.params;
 
-console.log(req.params, 'params dataa')
-
 
   try {
     const messages = await Chat.find({
@@ -21,4 +19,20 @@ console.log(req.params, 'params dataa')
   }
 };
 
-module.exports = { getMessages };
+
+
+const deleteMessage = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deleted = await Chat.findByIdAndDelete(id);
+    if (!deleted) return res.status(404).json({ message: 'Message not found' });
+
+    res.status(200).json({ message: 'Message deleted' });
+  } catch (err) {
+    console.error("Error deleting message:", err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+module.exports = { getMessages, deleteMessage };
