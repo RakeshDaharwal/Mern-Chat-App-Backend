@@ -1,43 +1,24 @@
 const Chat = require('../Model/chatSchema');
 
-const sendMessage = async (req, res) => {
-  try {
-    const { receiverId, message } = req.body;
-    const senderId = req.user.userId;
-
-    const newMessage = new Chat({
-      sender: senderId,
-      receiver: receiverId,
-      message,
-    });
-
-    const savedMessage = await newMessage.save();
-
-    return res.status(201).json(savedMessage);
-  } catch (error) {
-    return res.status(500).json({ message: 'Error sending message', error: error.message });
-  }
-};
-
-
-
 const getMessages = async (req, res) => {
-  try {
-    const userId = req.user.userId;
-    const { receiverId } = req.params;
+  const { userId, contactId } = req.params;
 
+console.log(req.params, 'params dataa')
+
+
+  try {
     const messages = await Chat.find({
       $or: [
-        { sender: userId, receiver: receiverId },
-        { sender: receiverId, receiver: userId }
+        { sender: userId, receiver: contactId },
+        { sender: contactId, receiver: userId }
       ]
-    }).sort({ createdAt: 1 });
+    }).sort('createdAt');
 
-    return res.status(200).json(messages);
+    res.json(messages);
   } catch (error) {
-    return res.status(500).json({ message: 'Error fetching messages', error: error.message });
+    console.error('Error fetching messages:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
-
-module.exports = { sendMessage, getMessages };
+module.exports = { getMessages };

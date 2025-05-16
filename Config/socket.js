@@ -1,41 +1,31 @@
-// socket.js
-let io;
+const Message = require('../Model/chatSchema');
 
-const socketConnection = (server) => {
-  const { Server } = require('socket.io');
-
-  io = new Server(server, {
-    cors: {
-      origin: "*", // or restrict to frontend URL
-      methods: ["GET", "POST"]
-    }
-  });
-
+const chatSocket = (io) => {
   io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
+    console.log('New client connected:', socket.id);
 
-    // Join user-specific room
-    socket.on('join', (userId) => {
-      socket.join(userId);
-      console.log(`User ${userId} joined room`);
+    socket.on('joinRoom', (roomId) => {
+      socket.join(roomId);
+      console.log(`User joined room: ${roomId}`);
     });
 
-    // Send and forward message to receiver
-    socket.on('sendMessage', ({ senderId, receiverId, message }) => {
-      io.to(receiverId).emit('receiveMessage', { senderId, message });
+    socket.on('sendMessage', async ({ sender, receiver, text }) => {
+
+    console.log('Received:', { sender, receiver, text });
+
+      // Save message in DB
+      const message = new Message({ sender, receiver, text });
+      await message.save();
+
+      // Emit message to receiver room
+      const roomId = [sender, receiver].sort().join('_');
+      io.to(roomId).emit('receiveMessage', message);
     });
 
     socket.on('disconnect', () => {
-      console.log('User disconnected:', socket.id);
+      console.log('Client disconnected:', socket.id);
     });
   });
 };
 
-const getIO = () => {
-  if (!io) {
-    throw new Error("Socket.io not initialized");
-  }
-  return io;
-};
-
-module.exports = { socketConnection, getIO };
+module.exports = {chatSocket};
