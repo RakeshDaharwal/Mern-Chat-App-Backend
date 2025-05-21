@@ -72,12 +72,14 @@ const userDetails = async (req, res) => {
   try {
     const userId = req.user.userId;
 
+
     // Fetch the user details by ID (exclude password)
     const user = await User.findOne({ _id: userId }).select('-password');
 
     if (!user) {
       return res.status(404).json({ message: 'User Not Found' });
     }
+
 
     return res.status(200).json(user);
   } catch (err) {
